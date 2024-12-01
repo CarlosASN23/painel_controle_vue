@@ -1,12 +1,18 @@
 <template>
-  <div class="login">
+  <div class="container mt-5">
     <h2>Login</h2>
-    <form @submit.prevent="login">
-      <input type="text" v-model="username" placeholder="Username" required />
-      <input type="password" v-model="password" placeholder="Password" required />
-      <button type="submit">Login</button>
+    <form @submit.prevent="handleLogin">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" v-model="username" class="form-control" id="username" required />
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" v-model="password" class="form-control" id="password" required />
+      </div>
+      <button type="submit" class="btn btn-primary">Login</button>
     </form>
-    <div v-if="errorMessage">{{ errorMessage }}</div>
+    <div v-if="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
   </div>
 </template>
 
@@ -14,11 +20,12 @@
 import { mapState, mapActions } from 'vuex';
 
 export default {
+  name: 'LoginView',
   data() {
     return {
       username: '',
       password: '',
-      errorMessage: '',
+      errorMessage: ''
     };
   },
   computed: {
@@ -26,23 +33,22 @@ export default {
   },
   methods: {
     ...mapActions(['login']),
-    login() {
-      this.login({ username: this.username, password: this.password })
-          .then(() => {
-            if (this.isAuthenticated) {
-              this.$router.push('/products');
-            } else {
-              this.errorMessage = 'Login failed. Please try again.';
-            }
-          });
-    },
-  },
+    async handleLogin() {
+      try {
+        await this.login({ username: this.username, password: this.password });
+        if (this.isAuthenticated) {
+          this.$router.push('/dashboard');
+        } else {
+          this.errorMessage = 'Invalid login credentials. Please try again.';
+        }
+      } catch (error) {
+        this.errorMessage = 'Invalid login credentials. Please try again.';
+      }
+    }
+  }
 };
 </script>
 
 <style scoped>
-.login {
-  max-width: 300px;
-  margin: 0 auto;
-}
+
 </style>
